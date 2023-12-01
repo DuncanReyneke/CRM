@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic CRM</title>
+    <style>
+body {
+    font-family: 'Ubuntu', sans-serif;
+    background-color: #D1E8E2;
+    color: #19747E;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;    
+}
+
+form {
+    background-color: #A9D6E5;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+input, textarea {
+    width: 96%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+button {
+    background-color: #19747E;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+#clients {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(432px, 1fr));
+    grid-gap: 20px;
+    flex: 1;
+}
+
+form, #clients {
+    width: 100%;
+}
+
+#client-form {
+    flex: 0 0 35%;
+    margin-right: 20px;
+}
+
+#clients div {
+    background-color: #E2E2E2;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1);
+}
+h2 {
+    display: block;
+}
+#add-client-section {
+    flex: 0 0 35%;
+    margin-right: 20px;
+}
+#clients-section {
+    flex: 0 0 60%;
+}
+
+.client-details {
+    background-color: #E2E2E2;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    overflow: auto;
+}
+
+    </style>
+</head>
+
+<body>
+    <div id="add-client-section">
+    <h2>Add Client</h2>
+    <form id="client-form">
+        <input type="text" id="firstName" placeholder="First Name">
+        <input type="text" id="lastName" placeholder="Last Name">
+        <input type="email" id="email" placeholder="Email">
+        <input type="tel" id="phone" placeholder="Phone">
+        <textarea id="notes" placeholder="Notes"></textarea>
+        <button type="submit">Add Client</button>
+    </form>
+</div>
+<div id="clients-section">
+    <h2>Clients</h2>
+    <div id="clients"></div>
+</div>
+    <script>
+        // Add your JavaScript here
+        let clients = JSON.parse(localStorage.getItem('clients')) || [];
+document.getElementById('client-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let firstName = document.getElementById('firstName').value;
+    let lastName = document.getElementById('lastName').value;
+    let email = document.getElementById('email').value;
+    let phone = document.getElementById('phone').value;
+    let notes = document.getElementById('notes').value;
+    let client = { firstName, lastName, email, phone, notes, interactions: [] };
+    clients.push(client);
+    localStorage.setItem('clients', JSON.stringify(clients));
+    displayClients();
+});
+function displayClients() {
+    let html = '';
+    clients.forEach(function(client, index) {
+        html += `<div>${client.firstName} ${client.lastName} <button onclick="displayClient(${index})">Details</button> <button onclick="deleteClient(${index})">Delete</button></div>`;
+    });
+    document.getElementById('clients').innerHTML = html;
+}
+function displayClient(index) {
+    let client = clients[index];
+    let html = `<div class="client-details"><h2>${client.firstName} ${client.lastName}</h2><p>${client.email}</p><p>${client.phone}</p><p>${client.notes}</p>`;
+    client.interactions.forEach(function(interaction) {
+        html += `<p>${interaction}</p>`;
+    });
+    html += `<form onsubmit="addInteraction(event, ${index})"><textarea id="interaction"></textarea><button type="submit">Add Interaction</button></form>`;
+    html += `<button onclick="displayClients()">Minimize</button></div>`;
+    document.getElementById('clients').innerHTML = html;
+}
+function addInteraction(e, index) {
+    e.preventDefault();
+    let interaction = document.getElementById('interaction').value;
+    clients[index].interactions.push(interaction);
+    localStorage.setItem('clients', JSON.stringify(clients));
+    displayClient(index);
+}
+function deleteClient(index) {
+    clients.splice(index, 1);
+    localStorage.setItem('clients', JSON.stringify(clients));
+    displayClients();
+}
+displayClients();
+    </script>
+</body>
+</html>
